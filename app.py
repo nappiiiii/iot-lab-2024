@@ -44,7 +44,7 @@ async def get_book(book_id: int, db: Session = Depends(get_db)):
 @router_v1.post('/books')
 async def create_book(book: dict, response: Response, db: Session = Depends(get_db)):
     # TODO: Add validation
-    newbook = models.Book(title=book['title'], author=book['author'], year=book['year'], is_published=book['is_published'])
+    newbook = models.Book(title=book['title'], author=book['author'], year=book['year'], is_published=book['is_published'], detail=book['detail'], info=book['info'], category=book['category'])
     db.add(newbook)
     db.commit()
     db.refresh(newbook)
@@ -58,6 +58,9 @@ async def update_book(book_id: int, book: dict, db: Session = Depends(get_db)):
     update_book.author = book['author']
     update_book.year = book['year']
     update_book.is_published = book['is_published']
+    update_book.detail = book['detail']
+    update_book.info = book['info']
+    update_book.category = book['category']
     db.commit()
     db.refresh(update_book)
     Response.status_code = 200
@@ -69,6 +72,81 @@ async def delete_book(book_id: int, db: Session = Depends(get_db)):
     db.delete(book)
     db.commit()
     return
+
+@router_v1.get('/beverages')
+async def get_beverages(db: Session = Depends(get_db)):
+    return db.query(models.Beverage).all()
+
+@router_v1.get('/beverages/{beverage_id}')
+async def get_beverage(beverage_id: int, db: Session = Depends(get_db)):
+    return db.query(models.Beverage).filter(models.Beverage.id == beverage_id).first()
+
+@router_v1.post('/beverages')
+async def create_beverage(beverage: dict, response: Response, db: Session = Depends(get_db)):
+    # TODO: Add validation
+    newbeverage = models.Beverage(name=beverage['name'], price=beverage['price'], detail=beverage['detail'])
+    db.add(newbeverage)
+    db.commit()
+    db.refresh(newbeverage)
+    response.status_code = 201
+    return newbeverage
+
+@router_v1.patch('/beverages/{beverage_id}')
+async def update_beverage(beverage_id: int, beverage: dict, db: Session = Depends(get_db)):
+    update_beverage = db.query(models.Beverage).filter(models.Beverage.id == beverage_id).first()
+    update_beverage.name = beverage['name']
+    update_beverage.price = beverage['price']
+    update_beverage.detail = beverage['detail']
+    db.commit()
+    db.refresh(update_beverage)
+    Response.status_code = 200
+    return update_beverage
+
+@router_v1.delete('/beverages/{beverage_id}')
+async def delete_beverage(beverage_id: int, db: Session = Depends(get_db)):
+    beverage = db.query(models.Beverage).filter(models.Beverage.id == beverage_id).first()
+    db.delete(beverage)
+    db.commit()
+    return
+
+@router_v1.get('/orders')
+async def get_orders(db: Session = Depends(get_db)):
+    return db.query(models.Order).all()
+
+@router_v1.get('/orders/{order_id}')
+async def get_order(order_id: int, db: Session = Depends(get_db)):
+    return db.query(models.Order).filter(models.Order.id == order_id).first()
+
+@router_v1.post('/orders')
+async def create_order(order: dict, response: Response, db: Session = Depends(get_db)):
+    # TODO: Add validation
+    neworder = models.Order(name=order['name'], price=order['price'], amount=order['amount'], ps=order['ps'])
+    db.add(neworder)
+    db.commit()
+    db.refresh(neworder)
+    response.status_code = 201
+    return neworder
+
+# @router_v1.patch('/orders/{order_id}')
+# async def update_order(order_id: int, order: dict, db: Session = Depends(get_db)):
+#     update_order = db.query(models.Order).filter(models.Order.id == order_id).first()
+#     update_order.name = order['name']
+#     update_order.price = order['price']
+#     update_order.amount = order['amount']
+#     update_order.ps = order['ps']
+#     db.commit()
+#     db.refresh(update_order)
+#     Response.status_code = 200
+#     return update_order
+
+@router_v1.delete('/orders/{order_id}')
+async def delete_order(order_id: int, db: Session = Depends(get_db)):
+    order = db.query(models.Order).filter(models.Order.id == order_id).first()
+    db.delete(order)
+    db.commit()
+    return
+
+######################################################################################################
 
 @router_v1.get('/students')
 async def get_students(db: Session = Depends(get_db)):
